@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-apache-mem
+spec:
+  selector:
+    matchLabels:
+      run: php-apache-mem
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: php-apache-mem
+    spec:
+      containers:
+      - name: php-apache
+        image: php-apache-mem
+        imagePullPolicy: Never # <-- Tells K8s to use your local image
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: 20Mi # <-- We must request resources for the HPA to work
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-apache
+  labels:
+    run: php-apache
+spec:
+  ports:
+  - port: 80
+  selector:
+    run: php-apache-mem
